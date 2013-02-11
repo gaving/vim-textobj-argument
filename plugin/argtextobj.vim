@@ -111,12 +111,12 @@ function! s:GetOutOfDoubleQuote()
   endif
 
   while 1
-    exe 'silent! normal ^va"'
-    normal :\<ESC>\<CR>
+    exe 'silent! normal! ^va"'
+    normal! :\<ESC>\<CR>
     if getpos("'<")==getpos("'>")
       break
     endif
-    exe 'normal gvr' . repl
+    exe 'normal! gvr' . repl
   endwhile
 
   call setpos('.', pos_save)
@@ -124,9 +124,9 @@ function! s:GetOutOfDoubleQuote()
     " in double quote
     call setline('.', line)
     if getpos('.')==getpos("'<")
-      normal h
+      normal! h
     else
-      normal F"
+      normal! F"
   endif
   else
     " not in double quote
@@ -137,7 +137,7 @@ endfunction
 function! s:GetOuterFunctionParenthesis()
   let pos_save = getpos('.')
   let rightup_before = pos_save
-  silent! normal [(
+  silent! normal! [(
   let rightup_p = getpos('.')
   while rightup_p != rightup_before
     if ! g:argumentobject_force_toplevel && getline('.')[getpos('.')[2]-1-1] =~ '[a-zA-Z0-9_]'
@@ -145,7 +145,7 @@ function! s:GetOuterFunctionParenthesis()
       break
     endif
     let rightup_before = rightup_p
-    silent! normal [(
+    silent! normal! [(
     let rightup_p = getpos('.')
   endwhile
   call setpos('.', pos_save)
@@ -155,7 +155,7 @@ endfunction
 function! s:GetPair(pos)
   let pos_save = getpos('.')
   call setpos('.', a:pos)
-  normal %h
+  normal! %h
   let pair_pos = getpos('.')
   call setpos('.', pos_save)
   return pair_pos
@@ -165,9 +165,9 @@ function! s:GetInnerText(r1, r2)
   let pos_save = getpos('.')
   let reg_save = @@
   call setpos('.', a:r1)
-  normal lv
+  normal! lv
   call setpos('.', a:r2)
-  normal y
+  normal! y
   let val = @@
   call setpos('.', pos_save)
   let @@ = reg_save
@@ -192,7 +192,7 @@ function! s:MoveToNextNonSpace()
   let moved = 0
   """echo 'move:' . getline('.')[getpos('.')[2]-1]
   while getline('.')[getpos('.')[2]-1]==' '
-    normal l
+    normal! l
     if oldp == getpos('.')
       break
     endif
@@ -204,20 +204,20 @@ endfunction
 
 function! s:MoveLeft(num)
   if a:num>0
-    exe 'normal ' . a:num . 'h'
+    exe 'normal! ' . a:num . 'h'
   endif
 endfunction
 
 function! s:MoveRight(num)
   if a:num>0
-    exe 'normal ' . a:num . 'l'
+    exe 'normal! ' . a:num . 'l'
   endif
 endfunction
 
 function! s:MotionArgument(inner, visual)
   let current_c = getline('.')[getpos('.')[2]-1]
   if current_c==',' || current_c=='('
-    normal l
+    normal! l
   endif
 
   " get out of "double quoted string" because [( does not take effect in it
@@ -276,19 +276,19 @@ function! s:MotionArgument(inner, visual)
       let right += 1
       let delete_trailing_space = 1
     else
-      " normal or tail of the list
+      " normal! or tail of the list
       call <SID>MoveLeft(left+1)
       let right += 1
     endif
   endif
 
-  exe 'normal v'
+  exe 'normal! v'
 
   call <SID>MoveRight(right)
   if delete_trailing_space
-    exe 'normal l'
+    exe 'normal! l'
     call <SID>MoveToNextNonSpace()
-    exe 'normal h'
+    exe 'normal! h'
   endif
 endfunction
 
